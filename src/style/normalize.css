@@ -1,0 +1,50 @@
+body,html{
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+}
+
+.modal-window{
+  display: grid;
+  grid-template-areas: "title" "search" "room-list";
+  grid-template-rows: min-content min-content 1fr;
+}
+h1{
+  grid-area: title;
+  background-color: #EEEEEE;
+  margin: 0;
+  /*text-align: start;*/
+}
+input{
+  grid-area: search;
+  line-height: 1.5em;
+  padding: 0 0.3em;
+}
+ul{
+  grid-area: room-list;
+  /*border:1px solid;*/
+  list-style-type: none;
+  margin: 0;
+  padding: 0.3em;
+
+}
+li{
+  text-align: start;
+  line-height: 2em;
+  border-bottom: 1px solid #F2F2F2;
+}
+
+a, a:active, a:hover{
+  text-decoration: none;
+  color: black;
+  text-transform: capitalize;
+
+}
+
+button{
+  margin-top: 1em;
+}
+
+form{
+  display: flex;
+}
