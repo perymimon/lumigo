@@ -1,5 +1,9 @@
-import axios from 'axios';
+import axios from 'axios'
+import userService from '@/service/users-service'
+
+
 const BASE_URL = '//localhost:3001/rooms'
+
 
 export class RoomsService {
   static async getAll () {
@@ -9,16 +13,16 @@ export class RoomsService {
   }
 
   static async getDetails (id) {
-    const res = await axios.get(`${BASE_URL}/${id}`);
-    return res.data;
+    const res = await axios.get(`${BASE_URL}/${id}`)
+    return new Room(id, res.data.name)
   }
 
   static async createRoom (roomName) {
     const res = await axios.post(`${BASE_URL}`, {
       name: roomName,
-    });
-    const data = res.data;
-    return new Room(data.roomId, roomName);
+    })
+    const data = res.data
+    return new Room(data.roomId, roomName)
   }
 
 }
@@ -30,37 +34,50 @@ export class Room {
     this.name = roomName
   }
 
-  getAllUsers (from, to) {
-    const params = new URLSearchParams()
-    params.append('from', from)
-    params.append('to', to)
+  async getUsers (from, to) {
+    if (typeof from == 'undefined' || typeof to == 'undefined') {
+      throw Error('from and to must defined')
+    }
+    const pUser = userService.getAll()
+    const pRoomUser = axios.get(`${BASE_URL}/${this.id}/users`, {params: {from, to}})
+      .then(ret => ret.data.users)
 
-    return axios.get(`${BASE_URL}/${this.id}/users`, params)
+    const [usersMap, roomUsers] = await Promise.all([pUser, pRoomUser])
+    return [...new Set(roomUsers)].map(id => usersMap[id])
   }
 
-  addUser (userId) {
-    return axios.post(`${BASE_URL}/${this.id}/users`, {
+  async addUser (userId) {
+    const restUrl = `${BASE_URL}/${this.id}/users`
+    const res = await axios.post(restUrl, {
       userId,
     })
+    return res.data
   }
 
-  removeUser (userId) {
-    return axios.delete(`${BASE_URL}/${this.id}/users/${userId}`)
+  async removeUser (userId) {
+    return await axios.delete(`${BASE_URL}/${this.id}/users/${userId}`)
   }
 
-  addText (text, userId) {
-    return axios.post(`${BASE_URL}/${this.id}/text`, {
+  async addText (text, userId) {
+    return await axios.post(`${BASE_URL}/${this.id}/text`, {
       text, userId,
     })
   }
 
-  getText (from, to) {
-    const params = new URLSearchParams()
-    params.append('from', from)
-    params.append('to', to)
+  async getText (from, to) {
+    const pUser = userService.getAll()
+    const pTexts = axios.get(`${BASE_URL}/${this.id}/text`, {params: {from, to}})
+      .then(res => res.data)
 
-    return axios.get(`${BASE_URL}/${this.id}/text`, params)
+    const [usersMap, messages] = await Promise.all([pUser, pTexts])
+    messages.forEach(m => m.name = usersMap[m.userId].name);
+    messages.reduce( (lastId,m)=>{
+      m.newSpeaker = (lastId!==m.userId);
+      return m.userId
+    },'');
+    return messages
   }
 }
 
-export default RoomsService;
+
+export default RoomsService

@@ -1,13 +1,10 @@
 <style scoped>
   .room-screen {
-
-  }
-
-  .modal-window {
     display: grid;
     grid-template-areas: "title" "search" "room-list";
     grid-template-rows: min-content min-content 1fr;
   }
+
 
   h1 {
     grid-area: title;
@@ -41,7 +38,6 @@
     text-decoration: none;
     color: black;
     text-transform: capitalize;
-
   }
 
   button {
@@ -61,49 +57,53 @@
     font-size: 10px;
     color: #2CBDA5;
     margin-inline-start: 0.2em;
-    position: absolute;
-    right: 0.2em;
-    line-height: 2.5em;
+  }
+
+  .new {
+
   }
 </style>
 
 <template>
   <div class="room-screen">
-    <div class="modal-window">
-      <h1>Rooms</h1>
-      <input type="text" v-model="filter" placeholder="Looking for room?">
-      <ul>
-        <li v-if="rooms.length" v-for="room in rooms" :key="room.id">
-          <router-link :to="'/rooms/'+room.id">{{room.name}} room</router-link>
-        </li>
-        <li>
-<!--          <form @action.prevent="creatNewRoom(e)">-->
-            <input v-model="filter" @keydown.enter="creatNewRoom()">
-<!--            <span class="badget">new</span>-->
-<!--          </form>-->
-        </li>
-      </ul>
-    </div>
+    <!--    <div class="modal-window">-->
+    <h1>Rooms</h1>
+    <input type="text" v-model="filter" placeholder="Looking for room? (or create new) ">
+    <ul>
+      <li  v-for="room in filterdRooms" :key="room.id">
+        <router-link :to="'/rooms/'+room.id">{{room.name}} room</router-link>
+      </li>
+      <li class="new" v-if="!filterdRooms.length" @click="creatNewRoom()">
+        <a v-text="filter" ></a>
+        <span class="badget">new</span>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
   import roomService from '@/service/rooms-service'
-  import {ROUTE} from '@/router';
+  import {ROUTE} from '@/router'
+
 
   export default {
     name: 'rooms-screen',
     data () {
       return {
         rooms: [{id: 1, name: 'mingling'}, {id: 2, name: 'bome bome'}],
-        filter: 'filter',
+        filter: '',
+      }
+    },
+    computed:{
+      filterdRooms(){
+        return this.rooms.filter( r=> r.name.includes(this.filter));
       }
     },
     methods: {
       async creatNewRoom () {
-        const vm = this;
-        const newRoom = await roomService.createRoom(vm.filter);
-        this.$router.push({name:ROUTE.CHAT, params:{id:newRoom.id}});
+        const vm = this
+        const newRoom = await roomService.createRoom(vm.filter)
+        this.$router.push({name: ROUTE.CHAT, params: {id: newRoom.id}})
       },
     },
     async mounted () {

@@ -15,13 +15,35 @@
 
   form{
     grid-area: form;
+    display: grid;
+    grid-template-areas: "input" "button";
+    grid-column: min-content;
+    align-content: space-around;
+    font-size: 1.5em;
+    place-self: center;
+    grid-template-columns: min-content;
+    grid-template-rows: min-content min-content;
+    justify-content: center;
+
+    margin-block-start: 5em;
+
+  }
+
+  form input{
+    grid-area: input;
+    font-size: inherit;
+  }
+
+  form button{
+    grid-area: button;
+    font-size: inherit;
   }
 
 
 </style>
 <template>
   <div class="login-screen">
-    <div class="modal-window">
+<!--    <div class="modal-window">-->
       <h1>Login</h1>
       <form @action.prevent="login()">
         <label for="name"></label>
@@ -29,7 +51,7 @@
         <button @click.prevent="login()">Go</button>
       </form>
     </div>
-  </div>
+<!--  </div>-->
 </template>
 
 <script>
@@ -41,13 +63,16 @@
 
     data () {
       return {
-        user: {name: 'test user'},
+        user: {},
       }
     },
     methods: {
       async login () {
+        const vm = this;
         const user = await UsersService.createUser(this.user.name);
-        this.$router.push(ROUTE.ROOMS);
+        vm.$root.$data.user = user;
+        // this.$router.push(ROUTE.ROOMS);
+        this.$router.go(-1);
       },
     },
   }
