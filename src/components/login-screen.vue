@@ -45,10 +45,10 @@
   <div class="login-screen">
 <!--    <div class="modal-window">-->
       <h1>Login</h1>
-      <form @action.prevent="login()">
+      <form @submit.prevent="login()">
         <label for="name"></label>
         <input id="name" type="text" v-model="user.name" placeholder="what your name?" autofocus>
-        <button @click.prevent="login()">Go</button>
+        <button>Go</button>
       </form>
     </div>
 <!--  </div>-->
@@ -71,8 +71,8 @@
         const vm = this;
         const user = await UsersService.createUser(this.user.name);
         vm.$root.$data.user = user;
-        // this.$router.push(ROUTE.ROOMS);
-        this.$router.go(-1);
+        this.$router.push(ROUTE.ROOMS);
+
       },
     },
   }

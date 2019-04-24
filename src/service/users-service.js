@@ -30,6 +30,15 @@ export class UsersService {
 
   }
 
+  static async isUserLogin(){
+    if(localStorage.userId){
+      const usersMap = await UsersService.getAll();
+      return !!usersMap[localStorage.userId];
+    }
+    return false
+
+  }
+
 }
 
 export default UsersService;

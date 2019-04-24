@@ -3,6 +3,8 @@ import Router from 'vue-router'
 import loginScreen from '@/components/login-screen'
 import roomsScreen from '@/components/rooms-screen'
 import chatScreen from '@/components/chat-screen'
+import userService from '@/service/users-service'
+
 
 Vue.use(Router)
 
@@ -11,24 +13,39 @@ const
   ROOMS = 'rooms',
   CHAT = 'chat'
 
-export const ROUTE = {LOGIN, ROOMS, CHAT};
+export const ROUTE = {LOGIN, ROOMS, CHAT}
 
-;export default new Router({
+const router = new Router({
+  beforeEach (to, from, next) {
+
+  },
   routes: [
     {
       path: '/',
       name: LOGIN,
-      component: loginScreen
+      component: loginScreen,
     },
     {
       path: '/rooms',
       name: ROOMS,
-      component: roomsScreen
+      component: roomsScreen,
     },
     {
       path: '/rooms/:id',
       name: CHAT,
-      component: chatScreen
-    }
-  ]
+      component: chatScreen,
+    },
+
+  ],
 })
+
+router.beforeEach(async (to, from, next) => {
+  // `to` and `from` are both route objects
+  if (to.name !== LOGIN) {
+    const isLogin = await userService.isUserLogin();
+    return isLogin ? next() : next({name: LOGIN});
+  }
+  next()
+
+})
+export default router
